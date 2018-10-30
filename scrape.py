@@ -5,33 +5,13 @@ import csv
 import os
 import re
 
-'''
-# get the main page content
-url = 'http://www.city-data.com/'
-response = requests.get(url)
-html = response.content
-soup = BeautifulSoup(html, "lxml")
-
-# collect the links for states
-statesElements = soup.findAll('a', attrs={'class': 'cities_list'})
-statesLinks = []
-
-for a in statesElements:
-    if a['href'] not in statesLinks:
-        statesLinks.append(a['href'])
-
-# get the links for every city in each state
-citiesLinks = []
-
-for link in statesLinks:
-    response = requests.get(link)
-    html = response.content
-    soup = BeautifulSoup(html, "lxml")
-    citiesElements = soup.select("tr td b a")
-    
-    for a in citiesElements:
-        citiesLinks.append(a['href'])
-'''        
+def clean(s):
+    toRemove = [',', '$', ' ', '%']
+    cleaned = ""
+    for c in s:
+        if c not in toRemove and not c.isalpha():
+            cleaned += c
+    return cleaned  
 
 # init the csv rows
 header = ["State",                  # State
@@ -43,14 +23,14 @@ header = ["State",                  # State
     "Med. HH Income ($)",           # Median Household Income
     "Unemployment %",               # Unemployment Percentage
     "Med. Rent ($)",                # Median Rent
-    "COL Index",                    # Cost of Living Index
+    "COL Idx",                      # Cost of Living Index
     "COL Category",                 # Cost of Living Category
     "Mean Commute (mins)",          # Travel Time to Work
-    "Crime Index",                  # Crime Index
+    "Crime Idx",                    # Crime Index
     "Avg. HH Size (person)",        # Average Household Size
-    "Air Quality Index",            # Air Quality Index
+    "Air Quality Idx",              # Air Quality Index
     "Poverty %",                    # Poverty Percentage
-    "Edu. Ineq. Index"              # Education Inequality Index
+    "Edu. Ineq. Idx"                # Education Inequality Index
 ]
 row = []
 
@@ -89,7 +69,7 @@ print("City:", cityName)
 cityPopulationTag = soup.find('section', attrs={'id': 'city-population'})
 child = cityPopulationTag.find('b', recursive=False)
 population = child.nextSibling.strip()
-row.append(population)
+row.append(clean(population))
 print("Population:", population)
 
 # get population density + category
@@ -99,7 +79,7 @@ populationDensity = None
 for child in children:
     if child.text == "Population density:":
         populationDensity = child.nextSibling.strip()
-row.append(populationDensity)
+row.append(clean(populationDensity))
 print("Population Density: " + populationDensity + " people per square mile")
 
 populationDensityDeets = soup.find('span', attrs={'class': 'population-density'}).nextSibling
@@ -112,7 +92,7 @@ print("Population Category: " + densityDeets)
 ageTag = soup.find('section', attrs={'id': 'median-age'})
 children = ageTag.select("div table tr td")[1].select("img")
 medianResidentAge = children[0].nextSibling.strip()
-row.append(medianResidentAge)
+row.append(clean(medianResidentAge))
 print("Median Resident Age:", medianResidentAge)
 
 # get estimated median household income
@@ -121,21 +101,21 @@ children = incomeTag.select("b")
 medianIncome = children[0].nextSibling
 r = "\\$(.*)\\s\\("
 medianIncome = re.search(r, medianIncome).group(1)
-row.append(medianIncome)
+row.append(clean(medianIncome))
 print("Median Household Income:", medianIncome)
 
 # get unemployment percentage
 unemploymentTag = soup.find('section', attrs={'id': 'unemployment'})
 children = unemploymentTag.select("div table tr td")[1].select("p")
 unemployment = children[0].nextSibling.strip()
-row.append(unemployment)
+row.append(clean(unemployment))
 print("Unemployment Percentage:", unemployment)
 
 # get median rent
 rentTag = soup.find('section', attrs={'id': 'median-rent'})
 children = rentTag.select("p b")
 rent = children[0].nextSibling.strip()
-row.append(rent)
+row.append(clean(rent))
 print("Median Rent:", rent)
 
 # get cost of living index + category
@@ -146,6 +126,8 @@ row.append(costOfLiving)
 print("Cost of Living Index:", costOfLiving)
 
 COLCategory = children[1].text
+r = "(\\()(.*),.*"
+COLCategory = re.search(r, COLCategory).group(2)
 row.append(COLCategory)
 print("Cost of Living Category:", COLCategory)
 
@@ -153,7 +135,7 @@ print("Cost of Living Category:", COLCategory)
 travelTimeTag = soup.find('section', attrs={'id': 'education-info'})
 children = travelTimeTag.select("ul li")[4].select("b")
 travelTime = children[0].nextSibling.strip()
-row.append(travelTime)
+row.append(clean(travelTime))
 print("Travel Time to Work:", travelTime)
 
 # get crime index, U.S. average = 280.5
@@ -167,7 +149,7 @@ print("Crime Index:", crimeIndex)
 hSizeTag = soup.find('section', attrs={'id': 'households-stats'})
 children = hSizeTag.select("div div table tr td")[1].select("img")
 hSize = children[0].nextSibling.strip()
-row.append(hSize)
+row.append(clean(hSize))
 print("Average Household Size:", hSize)
 
 # get median year house/condo built (SKIP; cannot find)
@@ -183,7 +165,7 @@ print("Air Quality Index:", airQualityIndex)
 povertyTag = soup.find('section', attrs={'id': 'poverty-level'})
 children = povertyTag.select("b")
 poverty = children[0].nextSibling.strip()
-row.append(poverty)
+row.append(clean(poverty))
 print("Poverty Percentage", poverty)
 
 # get education gini index (inequality in education)
