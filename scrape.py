@@ -97,6 +97,8 @@ def getRent(soup, row):
     rentTag = soup.find('section', attrs={'id': 'median-rent'})
     children = rentTag.select("p b")
     rent = children[0].nextSibling.strip()
+    if rent[len(rent)-1] == '.':
+        rent = rent[:len(rent)-1]
     row.append(clean(rent))
     print("Median Rent:", rent)
 
@@ -167,7 +169,8 @@ def getEduIneq(soup, row):
     print("Inequality in Education Index:", gini)
 
 # csv header
-header = ["State",                  # State
+header = [
+    "State",                        # State
     "City",                         # City
     "POP",                          # Population 
     "POP Density (people/sqmile)",  # Population Density 
@@ -188,8 +191,8 @@ header = ["State",                  # State
 
 # store data gathering functions in an array
 functions = [
-    getCityName,
     getStateName,
+    getCityName,
     getPopulation,
     getPopDens,
     getPopCat,
@@ -222,7 +225,7 @@ with open('cities.csv', 'r', newline='') as csvfile:
         cityLinks.append(row)
 
 # go through a certain range of cities
-for i in range(60, 70):
+for i in range(70, 80):
     # array to hold all the data for a city
     row = []
 
