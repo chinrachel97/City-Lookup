@@ -13,6 +13,8 @@ def clean(s):
     for c in s:
         if c not in toRemove and not c.isalpha():
             cleaned += c
+        elif c == ' ':
+            break
     return cleaned  
 
 # get city + state name
@@ -20,7 +22,7 @@ def getCityStateName(soup, row):
     cityStateTag = soup.find('h1', attrs={'class': 'city'})
     children = cityStateTag.select('span')
     fullName = children[0].text.strip()
-    r = "(\\w+), (\\w+)"
+    r = "(.+), (.+)"
     m = re.search(r, fullName)
     stateName = m.group(2) 
     cityName = m.group(1)
@@ -185,7 +187,7 @@ with open('cities.csv', 'r', newline='') as csvfile:
         cityLinks.append(row)
 
 # go through a certain range of cities
-for i in range(10):
+for i in range(40, 50):
     # array to hold all the data for a city
     row = []
 
@@ -203,6 +205,7 @@ for i in range(10):
         getCityStateName(soup, row)
     except:
         row.append("")
+        row.append("")
     
     # get population
     try:
@@ -214,6 +217,7 @@ for i in range(10):
     try:
         getPopDensCat(soup, row)
     except:
+        row.append("")
         row.append("")
     
     # get median resident age
@@ -244,6 +248,7 @@ for i in range(10):
     try: 
         getCOL(soup, row)
     except:
+        row.append("")
         row.append("")
 
     # get median travel time to work
@@ -291,4 +296,4 @@ for i in range(10):
         writer = csv.writer(csvfile, delimiter=',')
         writer.writerow(row)
 
-    time.sleep(randint(1, 4))
+    time.sleep(randint(1, 5))
