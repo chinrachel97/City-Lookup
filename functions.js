@@ -1,12 +1,12 @@
 // lists of known states and cities, and saved user inputs
 var knownCities = [];
 var knownStates = [];
+var cityToState = {};
 var userInputs = [];
-var statesToCities = {};
 
-// load the data and fill in the dropdown when the page loads
+// init the webpage
 $(document).ready(function(){
-  // load the data; this function then calls populateDropdown()
+  // load the city data from the CSV file
   loadData();
 });
 
@@ -17,19 +17,22 @@ $(document).keypress(function(e) {
         let cityEntered = document.getElementById("cityInput").value;
         console.log("City entered: " + cityEntered);
 
+        // type(cityRetVal) => (bool isValid, string properName)
+        let cityRetVal = isCityValid(cityEntered);
+
         // check if it is a valid city
-        if(isCityValid(cityEntered) && !userInputs.includes(cityEntered)){
+        if(cityRetVal[0] && !userInputs.includes(cityRetVal[1])){
           // if so, add it somewhere on the page
           let para = document.createElement("P");
-          let t = document.createTextNode(cityEntered);
+          let t = document.createTextNode(cityRetVal[1] + ", " + cityToState[cityRetVal[1]]);
           para.appendChild(t);
           document.getElementById("validCities").appendChild(para);
 
           // add this to the user's list
-          userInputs.push(cityEntered);
+          userInputs.push(cityRetVal[1]);
         }
         // don't allow duplicates
-        else if(isCityValid(cityEntered) && userInputs.includes(cityEntered)){
+        else if(cityRetVal[0] && userInputs.includes(cityRetVal[1])){
           alert("You've already listed this city!");
         }
         // throw an error only if there was text in the input box
@@ -48,10 +51,10 @@ function isCityValid(input){
   inputLower = input.toLowerCase();
   for(let i=0; i<knownCities.length; ++i){
     if(inputLower == knownCities[i].toLowerCase()){
-      return true;
+      return [true, knownCities[i]];
     }
   }
-  return false;
+  return [false, ""];
 }
 
 // push data to knownStates and knownCities (arrays)
@@ -74,6 +77,7 @@ function loadData(){
           if(!knownStates.includes(state))
             knownStates.push(state);
           knownCities.push(city);
+          cityToState[city] = state;
         }
       }
     }
@@ -81,7 +85,7 @@ function loadData(){
   rawFile.send(null);
 
   // populate the dropdown once all the data is loaded
-  populateDropdown();
+  //populateDropdown();
 }
 
 // populate the dropdown menu with values in knownStates
@@ -105,14 +109,34 @@ function reset(){
   $("#validCities").empty();
 }
 
+
 // TODO: call the python script
 function callPy(){
 
 }
 
-// TODO: get the results after calling the py script; delete it after use
-function getRecommendations(){
+// implement sleep function
+function sleep(ms){
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
+// check if a url exists
+function UrlExists(url)
+{
+    var http = new XMLHttpRequest();
+    http.open('HEAD', url, false);
+    http.send();
+    return http.status!=404;
+}
+
+// TODO: get the results after calling the py script; delete it after use
+async function getRecommendations(){
+  let filename = "test.txt"
+  while(!UrlExists(filename)){
+    await sleep(1000);
+    console.log("Still waiting...")
+  }
+  //alert("File found.");
 }
 
 /*
