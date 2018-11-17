@@ -8,6 +8,16 @@ var userInputs = [];
 $(document).ready(function(){
   // load the city data from the CSV file
   loadData();
+
+  //  tie a function to the submit button to call py script and get recs
+  $('#submitButton').click(function(){
+    $.ajax({
+      type: "POST",
+      url: "getRecommendations.php",
+    }).done(function(recommendations){
+      alert(recommendations);
+    });
+  });
 });
 
 // get the user input enter key is pressed
@@ -107,36 +117,6 @@ function reset(){
 
   // clear all the text in div id=validCities
   $("#validCities").empty();
-}
-
-
-// TODO: call the python script
-function callPy(){
-
-}
-
-// implement sleep function
-function sleep(ms){
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-// check if a url exists
-function UrlExists(url)
-{
-    var http = new XMLHttpRequest();
-    http.open('HEAD', url, false);
-    http.send();
-    return http.status!=404;
-}
-
-// TODO: get the results after calling the py script; delete it after use
-async function getRecommendations(){
-  let filename = "test.txt"
-  while(!UrlExists(filename)){
-    await sleep(1000);
-    console.log("Still waiting...")
-  }
-  //alert("File found.");
 }
 
 /*
