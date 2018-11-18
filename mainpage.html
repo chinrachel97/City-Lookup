@@ -17,7 +17,7 @@ https://www.w3schools.com/w3css/tryit.asp?filename=tryw3css_templates_startup --
 </head>
 
 <body>
-  
+
 <!-- Navbar (sit on top) -->
 <div class="w3-top">
   <div class="w3-bar w3-white w3-card" id="myNavbar">
@@ -50,7 +50,20 @@ https://www.w3schools.com/w3css/tryit.asp?filename=tryw3css_templates_startup --
     <button name="submitButton" id="submitButton">Submit</button>
     <button onclick="reset()">Reset</button>
   </div>
+  <br>
+
+  <!-- Recommendations Section -->
+  <div class="w3-container w3-light-grey" style="padding:128px 16px display: none" id="recommendations">
+    <h3 class="w3-center" style="display: none" id="recommendationsHeader"><br>Recommended Cities for You</h3>
+    <div class="recommendedCities" name="recommendedCities" id="recommendedCities">
+    </div>
+  </div>
+
+  <!-- User Input Section -->
   <div class="validCities" name="validCities" id="validCities">
+    <h3 class="w3-center" style="display: none" id="validCitiesHeader"><br>Cities You Liked</h3>
+    <div class="validatedCities" name="validatedCities" id="validatedCities">
+    </div>
   </div>
 </div>
 
