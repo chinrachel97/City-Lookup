@@ -9,12 +9,15 @@ $(document).ready(function(){
   // load the city data from the CSV file
   loadData();
 
-  //  tie a function to the submit button to call py script and get recs
+  //  tie the submit button to call py script and get recommendations
   $('#submitButton').click(function(){
+    // call the php script
     $.ajax({
       type: "POST",
+      data: {userInputs:userInputs},
       url: "getRecommendations.php",
     }).done(function(recommendations){
+      // write the recommendations to the site
       recsArr = recommendations.split("\n");
       for(let i=0; i<recsArr.length; ++i){
         addPText("recommendedCities", recsArr[i]);
