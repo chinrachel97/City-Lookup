@@ -3,6 +3,7 @@ var knownCities = [];
 var knownStates = [];
 var cityToState = {};
 var userInputs = [];
+var alreadyRecommended = false;
 
 // init the webpage
 $(document).ready(function(){
@@ -11,43 +12,53 @@ $(document).ready(function(){
 
   //  tie the submit button to call py script and get recommendations
   $('#submitButton').click(function(){
-    // call the php script
-    $.ajax({
-      type: "POST",
-      data: {userInputs:userInputs},
-      url: "getRecommendations.php",
-    }).done(function(recommendations){
-      // write the recommendations to the site
-      recsArr = recommendations.split("\n");
-      for(let i=0; i<recsArr.length; ++i){
-        addPText("recommendedCities", recsArr[i]);
-      }
+    // check if a recommendation hasn't already been given yet + if there is some user input
+    if(!alreadyRecommended && userInputs.length > 0){
+      // call the php script
+      $.ajax({
+        type: "POST",
+        data: {userInputs:userInputs},
+        url: "getRecommendations.php",
+      }).done(function(recommendations){
+        // write the recommendations to the site
+        recsArr = recommendations.split("\n");
+        for(let i=0; i<recsArr.length; ++i){
+          addPText("recommendedCities", recsArr[i]);
+        }
 
-      // show the recommendations section and its header
-      $("#recommendations").slideDown();
-      $("#recommendationsHeader").slideDown();
+        // show the recommendations section and its header
+        $("#recommendations").slideDown();
+        $("#recommendationsHeader").slideDown();
 
-      // add some breaks so the rec section looks less squished
-      document.getElementById("recommendedCities").innerHTML += "<br><br><br>"
-    });
+        // add some breaks so the rec section looks less squished
+        document.getElementById("recommendedCities").innerHTML += "<br><br><br>"
 
-    // show the user input header
-    $("#validCitiesHeader").slideDown();
+        // set the var to true so users can't submit multiples of the same request
+        alreadyRecommended = true;
+      });
+
+      // show the user input header
+      $("#validCitiesHeader").slideDown();
+    }
   });
 });
 
-// get the user input enter key is pressed
+// get the user input enter key is pressed + if a recommendation hasn't been given
 $(document).keypress(function(e) {
     if(e.which == 13) {
         // get the input
         let cityEntered = document.getElementById("cityInput").value;
-        console.log("City entered: " + cityEntered);
 
         // type(cityRetVal) => (bool isValid, string properName)
         let cityRetVal = isCityValid(cityEntered);
 
+        // if a recommendation is already given, don't do anything
+        if(alreadyRecommended){
+          document.getElementById("cityInput").value = '';
+          return;
+        }
         // check if it is a valid city
-        if(cityRetVal[0] && !userInputs.includes(cityRetVal[1])){
+        else if(cityRetVal[0] && !userInputs.includes(cityRetVal[1])){
           // if so, add it somewhere on the page
           let text =  cityRetVal[1] + ", " + cityToState[cityRetVal[1]];
           addPText("validatedCities", text);
@@ -133,6 +144,9 @@ function populateDropdown(){
 
 // implement reset function
 function reset(){
+  // reset the var so user can request recommendations again
+  alreadyRecommended = false;
+
   // clear the user input array
   userInputs = [];
   console.log(userInputs);
@@ -142,9 +156,9 @@ function reset(){
   $("#recommendedCities").empty();
 
   // hide the valid cities and recommended cities sections
-  $("#recommendations").hide();
-  $("#recommendationsHeader").hide();
-  $("#validCitiesHeader").hide();
+  $("#recommendations").slideUp();
+  $("#recommendationsHeader").slideUp();
+  $("#validCitiesHeader").slideUp();
 }
 
 /*
