@@ -19,7 +19,7 @@ body, html {
 .recommendedCities p{
   text-align: center;
 }
-div.inputBox {
+div.searchBar {
   text-align: center;
 }
 input[type=text]{
