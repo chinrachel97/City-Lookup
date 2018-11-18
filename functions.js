@@ -15,8 +15,21 @@ $(document).ready(function(){
       type: "POST",
       url: "getRecommendations.php",
     }).done(function(recommendations){
-      alert(recommendations);
+      recsArr = recommendations.split("\n");
+      for(let i=0; i<recsArr.length; ++i){
+        addPText("recommendedCities", recsArr[i]);
+      }
+
+      // show the recommendations section and its header
+      $("#recommendations").slideDown();
+      $("#recommendationsHeader").slideDown();
+
+      // add some breaks so the rec section looks less squished
+      document.getElementById("recommendedCities").innerHTML += "<br><br><br>"
     });
+
+    // show the user input header
+    $("#validCitiesHeader").slideDown();
   });
 });
 
@@ -33,10 +46,8 @@ $(document).keypress(function(e) {
         // check if it is a valid city
         if(cityRetVal[0] && !userInputs.includes(cityRetVal[1])){
           // if so, add it somewhere on the page
-          let para = document.createElement("P");
-          let t = document.createTextNode(cityRetVal[1] + ", " + cityToState[cityRetVal[1]]);
-          para.appendChild(t);
-          document.getElementById("validCities").appendChild(para);
+          let text =  cityRetVal[1] + ", " + cityToState[cityRetVal[1]];
+          addPText("validatedCities", text);
 
           // add this to the user's list
           userInputs.push(cityRetVal[1]);
@@ -55,6 +66,14 @@ $(document).keypress(function(e) {
         console.log(userInputs);
     }
 });
+
+// append text in a new <p> tag, given elementId and the text
+function addPText(elementId, text){
+  let para = document.createElement("P");
+  let t = document.createTextNode(text);
+  para.appendChild(t);
+  document.getElementById(elementId).appendChild(para);
+}
 
 // check if the input city is valid
 function isCityValid(input){
@@ -115,8 +134,14 @@ function reset(){
   userInputs = [];
   console.log(userInputs);
 
-  // clear all the text in div id=validCities
-  $("#validCities").empty();
+  // clear all the text in div id=validCities and id=recommendedCities
+  $("#validatedCities").empty();
+  $("#recommendedCities").empty();
+
+  // hide the valid cities and recommended cities sections
+  $("#recommendations").hide();
+  $("#recommendationsHeader").hide();
+  $("#validCitiesHeader").hide();
 }
 
 /*
