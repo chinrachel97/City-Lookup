@@ -225,7 +225,7 @@ with open('cities.csv', 'r', newline='') as csvfile:
         cityLinks.append(row)
 
 # go through a certain range of cities
-for i in range(900, len(cityLinks)):
+for i in range(450, 500):
     # array to hold all the data for a city
     row = []
 
