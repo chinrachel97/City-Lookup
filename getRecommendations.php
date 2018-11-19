@@ -7,7 +7,7 @@
 
     // add double quotes around the inputs to preserve double words
     for($i=0; $i<count($input); ++$i){
-      $input[$i] = "'".$input[$i]."'";
+      $input[$i] = "'".$input[$i][0].",".$input[$i][1]."'";
     }
 
     // join all the elements in the arr with a space
