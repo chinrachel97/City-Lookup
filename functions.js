@@ -63,8 +63,8 @@ $(document).keypress(function(e) {
           let text =  cityRetVal[1] + ", " + cityToState[cityRetVal[1]];
           addPText("validatedCities", text);
 
-          // add this to the user's list
-          userInputs.push(cityRetVal[1]);
+          // add the city + state to the user's list
+          userInputs.push([cityRetVal[1], cityToState[cityRetVal[1]]]);
         }
         // don't allow duplicates
         else if(cityRetVal[0] && userInputs.includes(cityRetVal[1])){
