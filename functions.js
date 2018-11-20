@@ -52,23 +52,31 @@ $(document).keypress(function(e) {
         // type(cityRetVal) => (bool isValid, string properName)
         let cityRetVal = isCityValid(cityEntered);
 
+        // don't allow duplicates
+        for(let i=0; i<userInputs.length; ++i){
+          if(cityRetVal[0] && userInputs[i].includes(cityRetVal[1])){
+            console.log("Duplicate found.")
+            alert("You've already listed this city!");
+
+            // clear the input box
+            document.getElementById("cityInput").value = '';
+            return
+          }
+        }
+
         // if a recommendation is already given, don't do anything
         if(alreadyRecommended){
           document.getElementById("cityInput").value = '';
           return;
         }
         // check if it is a valid city
-        else if(cityRetVal[0] && !userInputs.includes(cityRetVal[1])){
+        else if(cityRetVal[0]){
           // if so, add it somewhere on the page
           let text =  cityRetVal[1] + ", " + cityToState[cityRetVal[1]];
           addPText("validatedCities", text);
 
           // add the city + state to the user's list
           userInputs.push([cityRetVal[1], cityToState[cityRetVal[1]]]);
-        }
-        // don't allow duplicates
-        else if(cityRetVal[0] && userInputs.includes(cityRetVal[1])){
-          alert("You've already listed this city!");
         }
         // throw an error only if there was text in the input box
         else if(cityEntered.length > 0){
