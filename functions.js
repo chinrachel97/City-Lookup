@@ -3,11 +3,12 @@ var knownCities = [];
 var knownStates = [];
 var cityToState = {};
 var userInputs = [];
+var stateOptions = [];
 var alreadyRecommended = false;
 
 // init the webpage
 $(document).ready(function(){
-  // load the city data from the CSV file
+  // load the city data from the CSV file -> calls populateDropdown()
   loadData();
 
   //  tie the submit button to call py script and get recommendations
@@ -39,7 +40,24 @@ $(document).ready(function(){
 
       // show the user input header
       $("#validCitiesHeader").slideDown();
+
+      // hide the search bar
+      $("#cityInput").hide();
+      $("#statesDropdown").hide();
+      $("#advancedButton").hide();
     }
+  });
+
+  // tie the check/uncheck button to toggle check/uncheck all for state options
+  $("#checkAllButton").change(function() {
+      if(this.checked) {
+        for(let i=0; i<stateOptions.length; ++i)
+          stateOptions[i].checked = true;
+      }
+      else{
+        for(let i=0; i<stateOptions.length; ++i)
+          stateOptions[i].checked = false;
+      }
   });
 });
 
@@ -136,7 +154,10 @@ function loadData(){
   rawFile.send(null);
 
   // populate the dropdown once all the data is loaded
-  //populateDropdown();
+  populateDropdown();
+
+  // populate the advanced options
+  populateOptions();
 }
 
 // populate the dropdown menu with values in knownStates
@@ -150,6 +171,55 @@ function populateDropdown(){
   }
 }
 
+// populate the advanced options
+function populateOptions(){
+  let body = document.getElementById("statesOptions");
+  let tbl = document.createElement("table");
+  tbl.align = "center";
+  //tbl.setAttribute("border", 1); // table border for debugging
+  let tbody = document.createElement("tbody");
+  let trArr = [];
+  let nbRows = 9;
+
+  // create the rows
+  for(let rowIdx=0; rowIdx<nbRows; ++rowIdx){
+    let tr = document.createElement("tr");
+    trArr.push(tr);
+    tbody.appendChild(tr);
+  }
+
+  for(let i=0; i<knownStates.length; ++i){
+    // create the cell
+    let td = document.createElement("td");
+    td.width = '200px';
+    td.align = 'left';
+
+    // create the checkbox
+    let checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.id = "option:" + knownStates[i];
+    stateOptions.push(checkbox);
+
+    // create the label
+    let label = document.createElement("label");
+    label.htmlFor = "option:" + knownStates[i];
+
+    // create the text node
+    let text = document.createTextNode(" " + knownStates[i]);
+
+    // append everythe whole cell to the row
+    label.appendChild(text);
+    td.appendChild(checkbox);
+    td.appendChild(label);
+    trArr[i % nbRows].appendChild(td);
+  }
+
+  // append the table to the div
+  tbl.appendChild(tbody);
+  body.appendChild(tbl);
+  console.log(stateOptions);
+}
+
 // implement reset function
 function reset(){
   // reset the var so user can request recommendations again
@@ -157,7 +227,6 @@ function reset(){
 
   // clear the user input array
   userInputs = [];
-  console.log(userInputs);
 
   // clear all the text in div id=validCities and id=recommendedCities
   $("#validatedCities").empty();
@@ -167,6 +236,16 @@ function reset(){
   $("#recommendations").slideUp();
   $("#recommendationsHeader").slideUp();
   $("#validCitiesHeader").slideUp();
+
+  // show the search bar
+  $("#cityInput").show();
+  $("#statesDropdown").show();
+  $("#advancedButton").show();
+}
+
+// function for advanced option button, just show/hide the options
+function moreOptions(){
+  $("#statesOptions").slideToggle();
 }
 
 /*
