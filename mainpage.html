@@ -41,27 +41,37 @@ https://www.w3schools.com/w3css/tryit.asp?filename=tryw3css_templates_startup --
 </nav>
 
 <!-- Search Section -->
-<div class="w3-container" style="padding:128px 16px" id="search">
+<div class="w3-container cities-bg" style="padding:128px 16px" id="search">
   <h3 class="w3-center">Start Your Search</h3>
   <p class="w3-center w3-large">List some cities you've visited</p>
   <div class="searchBar">
-    <input type="text" name="cityInput" id="cityInput" placeholder="Enter a city: e.g. Dallas">
-    <button name="submitButton" id="submitButton">Submit</button>
+    <input type="text" id="cityInput" placeholder="Enter a city: e.g. Dallas">
+    <select style="height:33px" id="statesDropdown">
+      <option value="none"></option>
+    </select>
+    <button id="advancedButton" onclick="moreOptions()">Advanced</button>
+
+    <br><br>
+
+    <div id="statesOptions" style="display: none">
+      <input type="checkbox" id="checkAllButton"><label for="checkAllButton"> Check/Uncheck All</label><br><br>
+    </div><br>
+    <button id="submitButton">Get Recommendations</button>
     <button onclick="reset()">Start New Search</button>
   </div>
   <br>
 
   <!-- Recommendations Section -->
-  <div class="w3-container w3-light-grey" style="padding:128px 16px display: none" id="recommendations">
+  <div class="recommendedCitiesContainer" style="padding:128px 16px display: none" id="recommendations">
     <h3 class="w3-center" style="display: none" id="recommendationsHeader"><br>Recommended Cities for You</h3>
-    <div class="recommendedCities" name="recommendedCities" id="recommendedCities">
+    <div class="recommendedCities" id="recommendedCities">
     </div>
   </div>
 
   <!-- User Input Section -->
-  <div class="validCities" name="validCities" id="validCities">
+  <div class="validCities" id="validCities">
     <h3 class="w3-center" style="display: none" id="validCitiesHeader"><br>Cities You Liked</h3>
-    <div class="validatedCities" name="validatedCities" id="validatedCities">
+    <div class="validatedCities" id="validatedCities">
     </div>
   </div>
 </div>
