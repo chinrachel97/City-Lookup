@@ -10,8 +10,16 @@ body, html {
     background-image: url("/w3images/mac.jpg");
     min-height: 100%;
 }
+.cities-bg {
+  background-position: center;
+  background-size: cover;
+  background-image: url("hmmmm.jpg");
+}
 .w3-bar .w3-button {
     padding: 16px;
+}
+.recommendedCitiesContainer {
+  background-color: #f2f2f2;
 }
 .validatedCities p{
   text-align: center;
