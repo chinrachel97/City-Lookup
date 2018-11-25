@@ -8,57 +8,14 @@ var alreadyRecommended = false;
 
 // init the webpage
 $(document).ready(function(){
-  // load the city data from the CSV file -> calls populateDropdown()
+  // load the city data from the CSV file -> calls populateDropdown() -> checkAll()
   loadData();
 
   //  tie the submit button to call py script and get recommendations
-  $('#submitButton').click(function(){
-    // check if a recommendation hasn't already been given yet + if there is some user input
-    if(!alreadyRecommended && userInputs.length > 0){
-      // call the php script
-      $.ajax({
-        type: "POST",
-        data: {userInputs:userInputs},
-        url: "getRecommendations.php",
-      }).done(function(recommendations){
-        // write the recommendations to the site
-        recsArr = recommendations.split("\n");
-        for(let i=0; i<recsArr.length; ++i){
-          addPText("recommendedCities", recsArr[i]);
-        }
-
-        // show the recommendations section and its header
-        $("#recommendations").slideDown();
-        $("#recommendationsHeader").slideDown();
-
-        // add some breaks so the rec section looks less squished
-        document.getElementById("recommendedCities").innerHTML += "<br><br><br>"
-
-        // set the var to true so users can't submit multiples of the same request
-        alreadyRecommended = true;
-      });
-
-      // show the user input header
-      $("#validCitiesHeader").slideDown();
-
-      // hide the search bar
-      $("#cityInput").hide();
-      $("#statesDropdown").hide();
-      $("#advancedButton").hide();
-    }
-  });
+  $('#submitButton').click(submit);
 
   // tie the check/uncheck button to toggle check/uncheck all for state options
-  $("#checkAllButton").change(function() {
-      if(this.checked) {
-        for(let i=0; i<stateOptions.length; ++i)
-          stateOptions[i].checked = true;
-      }
-      else{
-        for(let i=0; i<stateOptions.length; ++i)
-          stateOptions[i].checked = false;
-      }
-  });
+  $("#checkAllButton").change(checkAll);
 });
 
 // get the user input enter key is pressed + if a recommendation hasn't been given
@@ -212,12 +169,67 @@ function populateOptions(){
     td.appendChild(checkbox);
     td.appendChild(label);
     trArr[i % nbRows].appendChild(td);
+
+    // check every state in the advanced options
+    checkbox = document.getElementById("checkAllButton");
+    checkbox.checked = true;
+    for(let i=0; i<stateOptions.length; ++i)
+      stateOptions[i].checked = true;
   }
 
   // append the table to the div
   tbl.appendChild(tbody);
   body.appendChild(tbl);
   console.log(stateOptions);
+}
+
+// check/uncheck all states
+function checkAll(){
+  checkbox = document.getElementById("checkAllButton");
+  if(checkbox.checked) {
+    for(let i=0; i<stateOptions.length; ++i)
+      stateOptions[i].checked = true;
+  }
+  else{
+    for(let i=0; i<stateOptions.length; ++i)
+      stateOptions[i].checked = false;
+  }
+}
+// implement the submit function
+function submit(){
+  // check if a recommendation hasn't already been given yet + if there is some user input
+  if(!alreadyRecommended && userInputs.length > 0){
+    // call the php script
+    $.ajax({
+      type: "POST",
+      data: {userInputs:userInputs},
+      url: "getRecommendations.php",
+    }).done(function(recommendations){
+      // write the recommendations to the site
+      recsArr = recommendations.split("\n");
+      for(let i=0; i<recsArr.length; ++i){
+        addPText("recommendedCities", recsArr[i]);
+      }
+
+      // show the recommendations section and its header
+      $("#recommendations").slideDown();
+      $("#recommendationsHeader").slideDown();
+
+      // add some breaks so the rec section looks less squished
+      document.getElementById("recommendedCities").innerHTML += "<br><br><br>"
+
+      // set the var to true so users can't submit multiples of the same request
+      alreadyRecommended = true;
+    });
+
+    // show the user input header
+    $("#validCitiesHeader").slideDown();
+
+    // hide the search bar
+    $("#cityInput").hide();
+    $("#statesDropdown").hide();
+    $("#advancedButton").hide();
+  }
 }
 
 // implement reset function
@@ -241,6 +253,11 @@ function reset(){
   $("#cityInput").show();
   $("#statesDropdown").show();
   $("#advancedButton").show();
+
+  // check all states again
+  checkbox.checked = true;
+  for(let i=0; i<stateOptions.length; ++i)
+    stateOptions[i].checked = true;
 }
 
 // function for advanced option button, just show/hide the options
