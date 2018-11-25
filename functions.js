@@ -270,7 +270,8 @@ function reset(){
   $("#recommendationsHeader").slideUp();
   $("#validCitiesHeader").slideUp();
 
-  // show the search bar
+  // clear the last input and show the search bar
+  document.getElementById("cityInput").value = "";
   $("#cityInput").show();
   $("#statesDropdown").show();
   $("#advancedButton").show();
