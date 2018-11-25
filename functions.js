@@ -2,6 +2,7 @@
 var knownCities = [];
 var knownStates = [];
 var cityToState = {};
+var cityStatePairs = [];
 var userInputs = [];
 var stateOptions = [];
 var alreadyRecommended = false;
@@ -20,48 +21,62 @@ $(document).ready(function(){
 
 // get the user input enter key is pressed + if a recommendation hasn't been given
 $(document).keypress(function(e) {
-    if(e.which == 13) {
-        // get the input
-        let cityEntered = document.getElementById("cityInput").value;
+  if(e.which == 13) {
+    // get the input city
+    let cityEntered = document.getElementById("cityInput").value;
 
-        // type(cityRetVal) => (bool isValid, string properName)
-        let cityRetVal = isCityValid(cityEntered);
+    // get the input state
+    let stateEntered = document.getElementById("statesDropdown").value;
 
-        // don't allow duplicates
-        for(let i=0; i<userInputs.length; ++i){
-          if(cityRetVal[0] && userInputs[i].includes(cityRetVal[1])){
-            console.log("Duplicate found.")
-            alert("You've already listed this city!");
+    // type(cityRetVal) => (bool isValid, string properName)
+    let cityRetVal = isCityValid(cityEntered);
+    let cityExists = cityRetVal[0];
+    let properCityName = cityRetVal[1];
+    let stateToEval = "";
+    let enteredPair = properCityName + "," + stateEntered;
 
-            // clear the input box
-            document.getElementById("cityInput").value = '';
-            return
-          }
-        }
+    // check whether city/state pair exists
+    if(cityStatePairs.includes(enteredPair))
+      stateToEval = stateEntered;
+    // randomly pick a (valid) state the city is from if no state specified
+    else if(stateEntered == "none")
+      stateToEval = cityToState[properCityName];
+    // set the state to unknown if city/state pair not found
+    else
+      stateToEval = "??";
 
-        // if a recommendation is already given, don't do anything
-        if(alreadyRecommended){
-          document.getElementById("cityInput").value = '';
-          return;
-        }
-        // check if it is a valid city
-        else if(cityRetVal[0]){
-          // if so, add it somewhere on the page
-          let text =  cityRetVal[1] + ", " + cityToState[cityRetVal[1]];
-          addPText("validatedCities", text);
+    let pairToEval = properCityName + "," + stateToEval;
 
-          // add the city + state to the user's list
-          userInputs.push([cityRetVal[1], cityToState[cityRetVal[1]]]);
-        }
-        // throw an error only if there was text in the input box
-        else if(cityEntered.length > 0){
-          alert("Sorry, we do not know this city. Please try another one.");
-        }
-
-        // clear the input box
-        document.getElementById("cityInput").value = '';
-        console.log(userInputs);
+    // don't allow duplicates
+    for(let i=0; i<userInputs.length; ++i){
+      if(cityExists && (userInputs[i].join() == pairToEval ||
+          (stateEntered == "none" && userInputs[i].includes(properCityName)))){
+        alert("You've already listed this city!");
+        return
+      }
     }
+
+    // if a recommendation is already given, don't do anything
+    if(alreadyRecommended){
+      document.getElementById("cityInput").value = '';
+      return;
+    }
+    // check if it is a valid city
+    else if(cityExists && stateToEval != "??"){
+      // if so, add it somewhere on the page
+      let text =  properCityName + ", " + stateToEval;
+      addPText("validatedCities", text);
+
+      // add the city + state to the user's list
+      userInputs.push([properCityName, stateToEval]);
+
+      // clear the input box
+      document.getElementById("cityInput").value = '';
+    }
+    // throw an error only if there was text in the input box
+    else if(cityEntered.length > 0)
+      alert("Sorry, we do not know this city. Please try another one.");
+  }
 });
 
 // append text in a new <p> tag, given elementId and the text
@@ -75,11 +90,10 @@ function addPText(elementId, text){
 // check if the input city is valid
 function isCityValid(input){
   inputLower = input.toLowerCase();
-  for(let i=0; i<knownCities.length; ++i){
-    if(inputLower == knownCities[i].toLowerCase()){
+  for(let i=0; i<knownCities.length; ++i)
+    if(inputLower == knownCities[i].toLowerCase())
       return [true, knownCities[i]];
-    }
-  }
+
   return [false, ""];
 }
 
@@ -98,6 +112,7 @@ function loadData(){
           cols = lines[i].split(',');
           state = cols[0];
           city = cols[1];
+          cityStatePairs.push([city,state].join());
 
           // append the names of cities and states to the lists
           if(!knownStates.includes(state))
@@ -180,21 +195,19 @@ function populateOptions(){
   // append the table to the div
   tbl.appendChild(tbody);
   body.appendChild(tbl);
-  console.log(stateOptions);
 }
 
 // check/uncheck all states
 function checkAll(){
   checkbox = document.getElementById("checkAllButton");
-  if(checkbox.checked) {
+  if(checkbox.checked)
     for(let i=0; i<stateOptions.length; ++i)
       stateOptions[i].checked = true;
-  }
-  else{
+  else
     for(let i=0; i<stateOptions.length; ++i)
       stateOptions[i].checked = false;
-  }
 }
+
 // implement the submit function
 function submit(){
   // get the last cmd arg: excluded states
@@ -204,7 +217,6 @@ function submit(){
   if(!alreadyRecommended && userInputs.length > 0){
     // add the excluded states
     userInputs.push(toExclude);
-    console.log(toExclude);
 
     // call the php script
     $.ajax({
@@ -214,9 +226,8 @@ function submit(){
     }).done(function(recommendations){
       // write the recommendations to the site
       recsArr = recommendations.split("\n");
-      for(let i=0; i<recsArr.length; ++i){
+      for(let i=0; i<recsArr.length; ++i)
         addPText("recommendedCities", recsArr[i]);
-      }
 
       // show the recommendations section and its header
       $("#recommendations").slideDown();
@@ -269,6 +280,9 @@ function reset(){
   checkbox.checked = true;
   for(let i=0; i<stateOptions.length; ++i)
     stateOptions[i].checked = true;
+
+  // reset the states dropdown value
+  document.getElementById("statesDropdown").value = "none";
 }
 
 // function for advanced option button, just show/hide the options
@@ -282,12 +296,11 @@ function formatExcluded(){
   toExclude = "";
 
   // get the states to exclude
-  for(let i=0; i<stateOptions.length; ++i){
+  for(let i=0; i<stateOptions.length; ++i)
     if(stateOptions[i].checked == false){
       stateName = stateOptions[i].id.replace("option:", "");
       excludedStates.push("'" + stateName.toString() + "'");
     }
-  }
 
   // if there are no states excluded, put "none" marker
   if(excludedStates.length == 0)
