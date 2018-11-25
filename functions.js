@@ -197,8 +197,15 @@ function checkAll(){
 }
 // implement the submit function
 function submit(){
+  // get the last cmd arg: excluded states
+  toExclude = formatExcluded();
+
   // check if a recommendation hasn't already been given yet + if there is some user input
   if(!alreadyRecommended && userInputs.length > 0){
+    // add the excluded states
+    userInputs.push(toExclude);
+    console.log(toExclude);
+
     // call the php script
     $.ajax({
       type: "POST",
@@ -229,6 +236,9 @@ function submit(){
     $("#cityInput").hide();
     $("#statesDropdown").hide();
     $("#advancedButton").hide();
+
+    // hide the advanced options section
+    $("#statesOptions").slideUp();
   }
 }
 
@@ -255,6 +265,7 @@ function reset(){
   $("#advancedButton").show();
 
   // check all states again
+  checkbox = document.getElementById("checkAllButton");
   checkbox.checked = true;
   for(let i=0; i<stateOptions.length; ++i)
     stateOptions[i].checked = true;
@@ -263,6 +274,28 @@ function reset(){
 // function for advanced option button, just show/hide the options
 function moreOptions(){
   $("#statesOptions").slideToggle();
+}
+
+// format the string of states to exclude for backend
+function formatExcluded(){
+  excludedStates = [];
+  toExclude = "";
+
+  // get the states to exclude
+  for(let i=0; i<stateOptions.length; ++i){
+    if(stateOptions[i].checked == false){
+      stateName = stateOptions[i].id.replace("option:", "");
+      excludedStates.push("'" + stateName.toString() + "'");
+    }
+  }
+
+  // if there are no states excluded, put "none" marker
+  if(excludedStates.length == 0)
+    toExclude = "none";
+  else
+    toExclude = excludedStates.join();
+
+  return toExclude;
 }
 
 /*
