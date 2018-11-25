@@ -21,15 +21,15 @@ body, html {
 .recommendedCitiesContainer {
   background-color: #f2f2f2;
 }
-.validatedCities p{
+.validatedCities p {
   text-align: center;
 }
-.recommendedCities p{
+.recommendedCities p {
   text-align: center;
 }
 div.searchBar {
   text-align: center;
 }
-input[type=text]{
+input[type=text] {
   width: 300px;
 }
