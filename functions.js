@@ -2,6 +2,7 @@
 var knownCities = [];
 var knownStates = [];
 var cityToState = {};
+var cityStateLinks = {};
 var cityStatePairs = [];
 var userInputs = [];
 var stateOptions = [];
@@ -25,6 +26,21 @@ function addPText(elementId, text){
   let t = document.createTextNode(text);
   para.appendChild(t);
   document.getElementById(elementId).appendChild(para);
+}
+
+// append text in a new <a> tag, given elementId and the text
+function addAText(elementId, text){
+  let para = document.createElement("P");
+  let t = document.createTextNode(text);
+  let a = document.createElement("a");
+  let formattedText = text.split(", ").join();
+  let link = cityStateLinks[formattedText];
+
+  a.appendChild(t);
+  a.setAttribute("href", link);
+
+  document.getElementById(elementId).appendChild(para);
+  para.appendChild(a);
 }
 
 // check if the input city is valid
@@ -65,11 +81,35 @@ function loadData(){
   }
   rawFile.send(null);
 
+  // get the links for each city/state pair
+  loadLinks();
+
   // populate the dropdown once all the data is loaded
   populateDropdown();
 
   // populate the advanced options
   populateOptions();
+}
+
+// load the links for each city/state pair
+function loadLinks(){
+  let rawFile = new XMLHttpRequest();
+  rawFile.open("GET", "cities.csv", false);
+  rawFile.onreadystatechange = function (){
+    if(rawFile.readyState === 4){
+      if(rawFile.status === 200 || rawFile.status == 0){
+        let allText = rawFile.responseText;
+        lines = allText.split('\n');
+
+        for(let i=0; i<lines.length; ++i){
+          link = lines[i];
+          cityState = cityStatePairs[i];
+          cityStateLinks[cityState] = "http://www.city-data.com/city/" + link;
+        }
+      }
+    }
+  }
+  rawFile.send(null);
 }
 
 // populate the dropdown menu with values in knownStates
@@ -225,7 +265,7 @@ function submit(){
       // write the recommendations to the site
       recsArr = recommendations.split("\n");
       for(let i=0; i<recsArr.length; ++i)
-        addPText("recommendedCities", recsArr[i]);
+        addAText("recommendedCities", recsArr[i]);
 
       // show the recommendations section and its header
       $("#recommendations").slideDown();
