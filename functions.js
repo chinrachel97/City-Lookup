@@ -19,66 +19,6 @@ $(document).ready(function(){
   $("#checkAllButton").change(checkAll);
 });
 
-// get the user input enter key is pressed + if a recommendation hasn't been given
-$(document).keypress(function(e) {
-  if(e.which == 13) {
-    // get the input city
-    let cityEntered = document.getElementById("cityInput").value;
-
-    // get the input state
-    let stateEntered = document.getElementById("statesDropdown").value;
-
-    // type(cityRetVal) => (bool isValid, string properName)
-    let cityRetVal = isCityValid(cityEntered);
-    let cityExists = cityRetVal[0];
-    let properCityName = cityRetVal[1];
-    let stateToEval = "";
-    let enteredPair = properCityName + "," + stateEntered;
-
-    // check whether city/state pair exists
-    if(cityStatePairs.includes(enteredPair))
-      stateToEval = stateEntered;
-    // randomly pick a (valid) state the city is from if no state specified
-    else if(stateEntered == "none")
-      stateToEval = cityToState[properCityName];
-    // set the state to unknown if city/state pair not found
-    else
-      stateToEval = "??";
-
-    let pairToEval = properCityName + "," + stateToEval;
-
-    // don't allow duplicates
-    for(let i=0; i<userInputs.length; ++i){
-      if(cityExists && (userInputs[i].join() == pairToEval ||
-          (stateEntered == "none" && userInputs[i].includes(properCityName)))){
-        alert("You've already listed this city!");
-        return
-      }
-    }
-
-    // if a recommendation is already given, don't do anything
-    if(alreadyRecommended){
-      document.getElementById("cityInput").value = '';
-      return;
-    }
-    // check if it is a valid city
-    else if(cityExists && stateToEval != "??"){
-      // if so, add it somewhere on the page
-      let text =  properCityName + ", " + stateToEval;
-      addPText("validatedCities", text);
-
-      // add the city + state to the user's list
-      userInputs.push([properCityName, stateToEval]);
-
-      // clear the input box
-      document.getElementById("cityInput").value = '';
-    }
-    // throw an error only if there was text in the input box
-    else if(cityEntered.length > 0)
-      alert("Sorry, we do not know this city. Please try another one.");
-  }
-});
-
 // append text in a new <p> tag, given elementId and the text
 function addPText(elementId, text){
   let para = document.createElement("P");
@@ -208,6 +148,64 @@ function checkAll(){
       stateOptions[i].checked = false;
 }
 
+// evaluate the user's input
+function addCity(){
+  // get the input city
+  let cityEntered = document.getElementById("cityInput").value;
+
+  // get the input state
+  let stateEntered = document.getElementById("statesDropdown").value;
+
+  // type(cityRetVal) => (bool isValid, string properName)
+  let cityRetVal = isCityValid(cityEntered);
+  let cityExists = cityRetVal[0];
+  let properCityName = cityRetVal[1];
+  let stateToEval = "";
+  let enteredPair = properCityName + "," + stateEntered;
+
+  // check whether city/state pair exists
+  if(cityStatePairs.includes(enteredPair))
+    stateToEval = stateEntered;
+  // randomly pick a (valid) state the city is from if no state specified
+  else if(stateEntered == "none")
+    stateToEval = cityToState[properCityName];
+  // set the state to unknown if city/state pair not found
+  else
+    stateToEval = "??";
+
+  let pairToEval = properCityName + "," + stateToEval;
+
+  // don't allow duplicates
+  for(let i=0; i<userInputs.length; ++i){
+    if(cityExists && (userInputs[i].join() == pairToEval ||
+        (stateEntered == "none" && userInputs[i].includes(properCityName)))){
+      alert("You've already listed this city!");
+      return;
+    }
+  }
+
+  // if a recommendation is already given, don't do anything
+  if(alreadyRecommended){
+    document.getElementById("cityInput").value = '';
+    return;
+  }
+  // check if it is a valid city
+  else if(cityExists && stateToEval != "??"){
+    // if so, add it somewhere on the page
+    let text =  properCityName + ", " + stateToEval;
+    addPText("validatedCities", text);
+
+    // add the city + state to the user's list
+    userInputs.push([properCityName, stateToEval]);
+
+    // clear the input box
+    document.getElementById("cityInput").value = '';
+  }
+  // throw an error only if there was text in the input box
+  else if(cityEntered.length > 0)
+    alert("Sorry, we do not know this city. Please try another one.");
+}
+
 // implement the submit function
 function submit(){
   // get the last cmd arg: excluded states
@@ -247,6 +245,7 @@ function submit(){
     $("#cityInput").hide();
     $("#statesDropdown").hide();
     $("#advancedButton").hide();
+    $("#addCityButton").hide();
 
     // hide the advanced options section
     $("#statesOptions").slideUp();
@@ -275,6 +274,7 @@ function reset(){
   $("#cityInput").show();
   $("#statesDropdown").show();
   $("#advancedButton").show();
+  $("#addCityButton").show();
 
   // check all states again
   checkbox = document.getElementById("checkAllButton");
